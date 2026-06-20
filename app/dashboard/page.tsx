@@ -41,7 +41,7 @@ export default async function DashboardPage() {
     .single();
   if (profile?.role === "employer") redirect("/employer/dashboard");
 
-  // --- Data Fetching ---
+  // --- Data Fetching (We now know this works perfectly) ---
   const { data: cvData } = await supabase
     .from("cv_data")
     .select("extracted_data")
@@ -50,12 +50,10 @@ export default async function DashboardPage() {
     .limit(1)
     .maybeSingle();
   const { data: jobs } = await supabase.from("jobs").select("*");
-
-  // THE FIX for Bug #1: This query now explicitly and only fetches the session for the currently logged-in user.
   const { data: latestInterview } = await supabase
     .from("interview_sessions")
     .select("weak_topics")
-    .eq("candidate_id", user.id) // This line is the key
+    .eq("candidate_id", user.id)
     .eq("status", "completed")
     .order("created_at", { ascending: false })
     .limit(1)
@@ -87,21 +85,38 @@ export default async function DashboardPage() {
   return (
     <div className="min-h-screen bg-gray-50 text-gray-900 font-sans">
       <header className="bg-white shadow-sm border-b border-gray-200 sticky top-0 z-10">
-        {/* ... existing navbar code ... */}
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4 flex justify-between items-center">
+          <div>
+            <h1 className="text-xl font-bold text-blue-700">
+              Smart Job Portal
+            </h1>
+            <p className="text-sm text-gray-500 hidden sm:block">
+              Candidate Dashboard
+            </p>
+          </div>
+          <div className="flex items-center gap-4">
+            <span className="text-sm font-medium text-gray-700 hidden sm:block">
+              {userName}
+            </span>
+            <form action={logout}>
+              <button
+                type="submit"
+                className="px-4 py-2 text-sm font-medium text-red-600 bg-red-50 hover:bg-red-100 rounded-lg transition"
+              >
+                Log Out
+              </button>
+            </form>
+          </div>
+        </div>
       </header>
 
       <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-        {/* THE FIX for Bug #2: Use flexbox for mobile ordering, and grid for desktop */}
         <div className="flex flex-col lg:grid lg:grid-cols-3 lg:gap-8">
-          {/* LEFT COLUMN - Order changed for mobile */}
           <div className="lg:col-span-1 flex flex-col gap-6 order-2 lg:order-1 mt-8 lg:mt-0">
             <UploadCV />
-
-            {/* THE FIX for Bug #3: Only show Learning Hub if a CV has been uploaded */}
             {skills.length > 0 && (
               <LearningHub matchedJobs={matchedJobs} weakTopics={weakTopics} />
             )}
-
             <div className="bg-white border border-gray-100 rounded-2xl shadow-sm p-6">
               <h2 className="text-lg font-bold text-gray-900 mb-4">
                 Your AI Extracted Skills
@@ -125,7 +140,6 @@ export default async function DashboardPage() {
             </div>
           </div>
 
-          {/* RIGHT COLUMN - Order changed for mobile */}
           <div className="lg:col-span-2 flex flex-col gap-6 order-1 lg:order-2">
             <div>
               <h2 className="text-2xl font-bold text-gray-900">
@@ -135,7 +149,6 @@ export default async function DashboardPage() {
                 Upload your CV to see personalized job matches.
               </p>
             </div>
-            {/* The rest of the job listing code remains the same */}
             {matchedJobs.length > 0 ? (
               <div className="flex flex-col gap-4">
                 {matchedJobs.map((job) => (
@@ -143,13 +156,86 @@ export default async function DashboardPage() {
                     key={job.id}
                     className="bg-white border rounded-2xl shadow-sm p-6 flex flex-col sm:flex-row gap-6 transition hover:shadow-lg"
                   >
-                    {/* ... a single job card's code ... */}
+                    <Link href={`/jobs/${job.id}`} className="flex-1 block">
+                      <div className="flex items-start justify-between">
+                        <div>
+                          <h3 className="text-lg font-bold text-gray-900">
+                            {job.title}
+                          </h3>
+                          <p className="text-sm text-gray-600 font-medium">
+                            {job.company} • {job.location}
+                          </p>
+                        </div>
+                        <div
+                          className={`sm:hidden px-3 py-1 rounded-full text-sm font-bold border ${job.score >= 80 ? "bg-green-50 text-green-700 border-green-200" : job.score >= 50 ? "bg-yellow-50 text-yellow-700 border-yellow-200" : "bg-red-50 text-red-700 border-red-200"}`}
+                        >
+                          {job.score}% Match
+                        </div>
+                      </div>
+                      <p className="text-sm text-gray-600 mt-3 line-clamp-2">
+                        {job.description}
+                      </p>
+                      <div className="mt-4">
+                        <h4 className="text-xs font-bold text-gray-500 uppercase tracking-wider mb-2">
+                          Skill Gaps (Missing)
+                        </h4>
+                        {job.missing.length > 0 ? (
+                          <div className="flex flex-wrap gap-2">
+                            {job.missing.map(
+                              (missingSkill: string, idx: number) => (
+                                <span
+                                  key={idx}
+                                  className="px-2 py-1 bg-red-50 border border-red-100 text-red-600 text-xs font-medium rounded-md"
+                                >
+                                  {missingSkill}
+                                </span>
+                              ),
+                            )}
+                          </div>
+                        ) : (
+                          <p className="text-xs text-green-600 font-medium">
+                            ✨ You have all the required skills!
+                          </p>
+                        )}
+                      </div>
+                    </Link>
+                    <div className="hidden sm:flex flex-col items-end justify-between min-w-[120px]">
+                      <div
+                        className={`flex flex-col items-center justify-center w-20 h-20 rounded-full border-4 ${job.score >= 80 ? "border-green-400 text-green-700 bg-green-50" : job.score >= 50 ? "border-yellow-400 text-yellow-700 bg-yellow-50" : "border-red-400 text-red-700 bg-red-50"}`}
+                      >
+                        <span className="text-xl font-bold">{job.score}%</span>
+                        <span className="text-[10px] uppercase font-bold text-gray-500">
+                          Match
+                        </span>
+                      </div>
+                      {skills.length > 0 ? (
+                        <Link
+                          href={`/interview/${job.id}`}
+                          className="mt-4 w-full block px-4 py-2 bg-blue-600 text-white text-sm text-center font-medium rounded-lg hover:bg-blue-700 transition"
+                        >
+                          Practice AI Interview
+                        </Link>
+                      ) : (
+                        <div className="mt-4 w-full text-center">
+                          <button
+                            disabled
+                            className="w-full px-4 py-2 bg-gray-200 text-gray-400 text-sm font-medium rounded-lg cursor-not-allowed border"
+                          >
+                            Practice AI Interview
+                          </button>
+                          <p className="text-xs text-red-500 font-medium mt-2">
+                            ⚠️ Upload your CV to unlock
+                          </p>
+                        </div>
+                      )}
+                    </div>
                   </div>
                 ))}
               </div>
             ) : (
               <div className="bg-white border rounded-2xl p-12 text-center shadow-sm">
-                {/* ... no jobs available message ... */}
+                <h3 className="text-lg font-bold">No jobs available</h3>
+                <p className="text-gray-500">Please check back later!</p>
               </div>
             )}
           </div>
