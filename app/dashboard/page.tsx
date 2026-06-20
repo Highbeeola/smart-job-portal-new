@@ -41,7 +41,7 @@ export default async function DashboardPage() {
     .single();
   if (profile?.role === "employer") redirect("/employer/dashboard");
 
-  // --- Data Fetching (We now know this works perfectly) ---
+  // --- Data Fetching ---
   const { data: cvData } = await supabase
     .from("cv_data")
     .select("extracted_data")
@@ -149,6 +149,7 @@ export default async function DashboardPage() {
                 Upload your CV to see personalized job matches.
               </p>
             </div>
+
             {matchedJobs.length > 0 ? (
               <div className="flex flex-col gap-4">
                 {matchedJobs.map((job) => (
@@ -166,10 +167,16 @@ export default async function DashboardPage() {
                             {job.company} • {job.location}
                           </p>
                         </div>
+                        {/* Mobile Badge */}
                         <div
-                          className={`sm:hidden px-3 py-1 rounded-full text-sm font-bold border ${job.score >= 80 ? "bg-green-50 text-green-700 border-green-200" : job.score >= 50 ? "bg-yellow-50 text-yellow-700 border-yellow-200" : "bg-red-50 text-red-700 border-red-200"}`}
+                          className={`sm:hidden flex flex-col items-center justify-center w-16 h-16 rounded-full border-2 ${job.score >= 80 ? "border-green-300 bg-green-50 text-green-700" : job.score >= 50 ? "border-yellow-300 bg-yellow-50 text-yellow-700" : "border-red-300 bg-red-50 text-red-700"}`}
                         >
-                          {job.score}% Match
+                          <span className="text-lg font-bold">
+                            {job.score}%
+                          </span>
+                          <span className="text-[8px] uppercase tracking-wider">
+                            Match
+                          </span>
                         </div>
                       </div>
                       <p className="text-sm text-gray-600 mt-3 line-clamp-2">
@@ -199,14 +206,20 @@ export default async function DashboardPage() {
                         )}
                       </div>
                     </Link>
+                    {/* Desktop Score Ring & Button */}
                     <div className="hidden sm:flex flex-col items-end justify-between min-w-[120px]">
+                      {/* 🟢 THE FIX IS HERE 🟢 */}
                       <div
-                        className={`flex flex-col items-center justify-center w-20 h-20 rounded-full border-4 ${job.score >= 80 ? "border-green-400 text-green-700 bg-green-50" : job.score >= 50 ? "border-yellow-400 text-yellow-700 bg-yellow-50" : "border-red-400 text-red-700 bg-red-50"}`}
+                        className={`flex items-center justify-center w-20 h-20 rounded-full border-4 ${job.score >= 80 ? "border-green-400 text-green-700 bg-green-50" : job.score >= 50 ? "border-yellow-400 text-yellow-700 bg-yellow-50" : "border-red-400 text-red-700 bg-red-50"}`}
                       >
-                        <span className="text-xl font-bold">{job.score}%</span>
-                        <span className="text-[10px] uppercase font-bold text-gray-500">
-                          Match
-                        </span>
+                        <div className="text-center leading-tight">
+                          <span className="text-xl font-bold">
+                            {job.score}%
+                          </span>
+                          <span className="text-[10px] uppercase font-bold text-gray-500">
+                            Match
+                          </span>
+                        </div>
                       </div>
                       {skills.length > 0 ? (
                         <Link
