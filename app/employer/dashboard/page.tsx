@@ -53,7 +53,7 @@ export default async function EmployerDashboard() {
                   key={job.id}
                   className="p-4 sm:p-6 flex flex-col sm:flex-row justify-between sm:items-center gap-4"
                 >
-                  {/* 🟢 ENHANCED JOB DETAILS 🟢 */}
+                  {/*  ENHANCED JOB DETAILS */}
                   <div className="flex-1">
                     <h3 className="text-lg font-bold text-gray-800">
                       {job.title}
@@ -68,7 +68,7 @@ export default async function EmployerDashboard() {
                       </span>
                     </div>
                   </div>
-                  {/* 🟢 ACTION BUTTONS 🟢 */}
+                  {/*  ACTION BUTTONS  */}
                   <div className="flex items-center gap-3 self-end sm:self-center">
                     <button
                       disabled

@@ -17,7 +17,6 @@ export default async function InterviewPage({
 
   if (!user) redirect("/login");
 
-  // We still need to ensure the profile exists
   const { data: profile } = await supabase
     .from("profiles")
     .select("id")
@@ -58,7 +57,6 @@ export default async function InterviewPage({
     ? cvData.extracted_data.skills
     : [];
 
-  // 🟢 THE FIX: We no longer look for old sessions. We always create a new one.
   // This ensures a fresh start every single time the user clicks "Practice".
   const { data: newSession, error: sessionError } = await supabase
     .from("interview_sessions")

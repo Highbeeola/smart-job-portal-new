@@ -237,7 +237,7 @@ export default async function DashboardPage() {
                             Practice AI Interview
                           </button>
                           <p className="text-xs text-red-500 font-medium mt-2">
-                            ⚠️ Upload your CV to unlock
+                            Upload your CV to unlock
                           </p>
                         </div>
                       )}

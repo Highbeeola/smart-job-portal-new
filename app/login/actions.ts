@@ -47,7 +47,6 @@ export async function login(formData: FormData) {
   }
 }
 
-// ... your existing, working signup and logout functions ...
 export async function signup(formData: FormData) {
   const supabase = await createClient();
   const data = {

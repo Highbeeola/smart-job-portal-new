@@ -33,13 +33,11 @@ export async function POST(request: Request) {
     const history = session.chat_history || [];
     history.push({ role: "user", content: message });
 
-    // Count how many questions have ALREADY been asked and logged
     const questionsAskedCount = history.filter(
       (msg: any) =>
         msg.role === "model" && msg.content.toLowerCase().includes("question"),
     ).length;
 
-    // 🟢 FINAL, POLISHED PROMPT WITH STATE MACHINE LOGIC
     const systemInstruction = `
       You are a stateful AI Interview Coach for a candidate applying for the role of ${jobTitle}.
       Your task is to conduct a 3-question interview.

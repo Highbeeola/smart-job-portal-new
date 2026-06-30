@@ -56,7 +56,7 @@ export default async function JobDetailsPage({
               )}
             </div>
 
-            {/* 🟢 CORRECTED APPLY NOW BUTTON LOGIC 🟢 */}
+            {/*  CORRECTED APPLY NOW BUTTON LOGIC  */}
             {employerEmail ? (
               <div className="border-t pt-8">
                 <a

@@ -64,7 +64,6 @@ export async function POST(request: Request) {
       );
     }
 
-    // 🟢 FIX 1: Set temperature inside generationConfig
     const model = genAI.getGenerativeModel({
       model: "gemini-2.5-flash",
       generationConfig: {
@@ -92,10 +91,8 @@ export async function POST(request: Request) {
     ${text}
     `;
 
-    // 🟢 FIX 2: Use generateContent() instead of generate()
     const result = await model.generateContent(prompt);
 
-    // 🟢 FIX 3: Use the built-in .text() method to safely get the string
     const rawOutput = result.response.text();
 
     if (!rawOutput) {
@@ -105,10 +102,8 @@ export async function POST(request: Request) {
       );
     }
 
-    // Clean and parse the JSON
     const extractedJson = parseJsonFromResponse(rawOutput);
 
-    // 🟢 FIX 4: Return the JSON directly so your frontend (aiData.skills) can read it properly!
     return NextResponse.json(
       extractedJson || {
         full_name: "",

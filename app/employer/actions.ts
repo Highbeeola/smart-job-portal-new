@@ -1,15 +1,12 @@
 "use server";
 
-// You don't need the createServerClient import here if we're using the helper
 import { createClient } from "@/utils/supabase/server";
 import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
 
 export async function createJob(formData: FormData) {
-  // 🟢 THE FIX: We use our standard helper which handles cookies correctly
   const supabase = await createClient();
 
-  // 1. This call will now work correctly because createClient handles the async cookies
   const {
     data: { user },
   } = await supabase.auth.getUser();
@@ -37,7 +34,7 @@ export async function createJob(formData: FormData) {
     employer_id: user.id, // Link the job to the employer
     job_type: formData.get("job_type") as string,
     salary_range: formData.get("salary_range") as string,
-     employer_email: user.email,
+    employer_email: user.email,
   };
 
   // 4. Insert into the database

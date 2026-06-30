@@ -13,7 +13,7 @@ export default function UploadCV() {
   const [message, setMessage] = useState("");
 
   const supabase = createClient();
-  const router = useRouter(); // 🟢 This allows us to refresh the page!
+  const router = useRouter(); //  This allows us to refresh the page!
 
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     if (e.target.files && e.target.files.length > 0) {
@@ -66,7 +66,7 @@ export default function UploadCV() {
       if (!aiResponse.ok)
         throw new Error(aiData.error || "Failed to extract skills");
 
-      // 3. 🟢 SAVE TO SUPABASE DATABASE
+      // 3.  SAVE TO SUPABASE DATABASE
       const { error: dbError } = await supabase.from("cv_data").insert({
         candidate_id: user.id,
         file_url: fileUrl,
@@ -79,7 +79,7 @@ export default function UploadCV() {
       setMessage("✅ CV Analyzed and Saved Successfully!");
       setFile(null);
 
-      // 4. 🟢 REFRESH THE DASHBOARD TO SHOW THE NEW SKILLS IN THE RIGHT COLUMN!
+      // 4.  REFRESH THE DASHBOARD TO SHOW THE NEW SKILLS IN THE RIGHT COLUMN!
       router.refresh();
     } catch (error: any) {
       setStatus("error");
