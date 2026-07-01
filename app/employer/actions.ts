@@ -17,14 +17,14 @@ export async function createJob(formData: FormData) {
     );
   }
 
-  // 2. Get the raw comma-separated skills string
+  // Get the raw comma-separated skills string
   const skillsRaw = formData.get("required_skills") as string;
   const required_skills = skillsRaw
     .split(",")
     .map((skill) => skill.trim())
     .filter(Boolean);
 
-  // 3. Create the job data object with the new fields included
+  // Create the job data object with all fields
   const jobData = {
     title: formData.get("title") as string,
     company: formData.get("company") as string,
@@ -37,7 +37,7 @@ export async function createJob(formData: FormData) {
     employer_email: user.email,
   };
 
-  // 4. Insert into the database
+  // Insert into the database
   const { error } = await supabase.from("jobs").insert(jobData);
 
   if (error) {
@@ -45,7 +45,37 @@ export async function createJob(formData: FormData) {
     return redirect(`/employer/jobs/create?message=Error: ${error.message}`);
   }
 
-  // 5. Revalidate the path and redirect back to the employer dashboard
+  // Revalidate the path and redirect back to the employer dashboard
   revalidatePath("/employer/dashboard");
   redirect("/employer/dashboard");
+}
+
+// 🟢 NEWLY ADDED DELETE FUNCTION 🟢
+export async function deleteJob(jobId: string) {
+  const supabase = await createClient();
+
+  // 1. Get the current logged-in user to ensure they are the owner
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
+  if (!user) {
+    throw new Error("Authentication failed.");
+  }
+
+  // 2. Perform the delete operation, but ONLY if the employer_id matches the user's id
+  // This is a crucial security check that our RLS policy also enforces.
+  const { error } = await supabase
+    .from("jobs")
+    .delete()
+    .eq("id", jobId)
+    .eq("employer_id", user.id); // Security check!
+
+  if (error) {
+    console.error("Error deleting job:", error);
+    // In a real app, you might redirect with an error message
+    throw new Error("Could not delete job posting.");
+  }
+
+  // 3. Revalidate the path to ensure the job list is updated on the dashboard
+  revalidatePath("/employer/dashboard");
 }

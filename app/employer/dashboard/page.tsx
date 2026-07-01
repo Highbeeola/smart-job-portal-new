@@ -2,7 +2,7 @@ import Link from "next/link";
 import { redirect } from "next/navigation";
 import { createClient } from "@/utils/supabase/server";
 import { logout } from "@/app/login/actions";
-
+import { deleteJob } from "../actions";
 export default async function EmployerDashboard() {
   const supabase = await createClient();
   const {
@@ -76,12 +76,22 @@ export default async function EmployerDashboard() {
                     >
                       View Applicants
                     </button>
-                    <button
-                      disabled
-                      className="text-sm font-medium text-gray-500 hover:text-red-600 cursor-not-allowed"
+
+                    {/* 🟢 NEW, WORKING DELETE BUTTON 🟢 */}
+                    <form
+                      action={async () => {
+                        // We wrap the server action in an anonymous async function to pass the jobId
+                        "use server";
+                        await deleteJob(job.id);
+                      }}
                     >
-                      Delete
-                    </button>
+                      <button
+                        type="submit"
+                        className="text-sm font-medium text-gray-500 hover:text-red-600 transition"
+                      >
+                        Delete
+                      </button>
+                    </form>
                   </div>
                 </li>
               ))
